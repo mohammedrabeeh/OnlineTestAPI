@@ -212,18 +212,20 @@ namespace OnlineRecipeHub.Controllers
 
         // DELETE: api/Recipes/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Recipe>> DeleteRecipe(int id)
+        public ActionResult DeleteRecipe(int id)
         {
-            var recipe = await _context.Recipe.FindAsync(id);
+            var recipe = _context.Recipe.Find(id);
             if (recipe == null)
             {
                 return NotFound();
             }
 
+            _context.Steps.RemoveRange(_context.Steps.Where(s => s.RecipeId == recipe.RecipeId));
+            _context.Ingredients.RemoveRange(_context.Ingredients.Where(s => s.RecipeId == recipe.RecipeId));
             _context.Recipe.Remove(recipe);
-            await _context.SaveChangesAsync();
-
-            return recipe;
+            //_context.SaveChanges();
+            var result = true;
+            return Ok(new { result }); 
         }
 
         private bool RecipeExists(int id)
